@@ -10,7 +10,7 @@ import {
 import { 
   identifyQA, 
   generateChapterMarkers
-} from '../services/openaiService';
+} from '../services/cloudFunctionService';
 import {
   Container,
   Typography,

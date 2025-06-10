@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 
 // Initialize OpenAI with your API key
 const openai = new OpenAI({
-  apiKey: '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',
+  apiKey: 'redacted',
   dangerouslyAllowBrowser: true // Only for client-side use. For production, use server-side API calls
 });
 

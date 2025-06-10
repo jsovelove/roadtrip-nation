@@ -1,7 +1,12 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const cors = require('cors')({ origin: true });
-const OpenAI = require('openai');
+const cors = require('cors')({ 
+  origin: true, 
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+});
+const { OpenAI } = require('openai');
 
 admin.initializeApp();
 
@@ -13,6 +18,11 @@ const openai = new OpenAI({
 // Cloud function to identify Q&A segments
 exports.identifyQA = functions.https.onRequest((req, res) => {
   return cors(req, res, async () => {
+    // Handle preflight OPTIONS request
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+    
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -82,6 +92,11 @@ exports.identifyQA = functions.https.onRequest((req, res) => {
 // Cloud function to generate chapter markers
 exports.generateChapterMarkers = functions.https.onRequest((req, res) => {
   return cors(req, res, async () => {
+    // Handle preflight OPTIONS request
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+    
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
