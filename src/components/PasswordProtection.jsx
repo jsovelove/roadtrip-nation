@@ -16,7 +16,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
   const [loading, setLoading] = useState(false);
 
   // Set your password here - in production, consider using environment variables
-  const SITE_PASSWORD = 'roadtrip2024'; // Change this to your desired password
+  const SITE_PASSWORD = 'roadtripAIchallenge'; // Change this to your desired password
 
   const handleSubmit = (e) => {
     e.preventDefault();
