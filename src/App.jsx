@@ -109,7 +109,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
+      <Router basename="/roadtrip-nation">
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navigation />
           <Box component="main" sx={{ flexGrow: 1 }}>
