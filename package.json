@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
+    "deploy": "npm run build && echo 'Build complete! Push to main branch to deploy via GitHub Actions.'",
     "analyze-topics": "node scripts/generateTopicAnalysis.js",
     "analyze-topics-force": "node scripts/generateTopicAnalysis.js --force",
     "categorize-chapters": "node -r esm src/scripts/categorizeChaptersByTopic.js"
