@@ -3,7 +3,8 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
-// For production, these should be environment variables
+// Note: Firebase client-side API keys are safe to expose publicly
+// They are secured through Firebase Security Rules, not by hiding the key
 const firebaseConfig = {
     apiKey: "AIzaSyBRdA9Q8YDuGTXs_EptUR544noHh4_du18",
     authDomain: "roadtrip-nation-challenge.firebaseapp.com",

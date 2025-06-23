@@ -122,6 +122,18 @@ const LeadersList = () => {
           Search Leaders
         </Typography>
         
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <Button
+            variant="contained"
+            component={Link}
+            to="/add-leader"
+            startIcon={<PersonIcon />}
+            size="large"
+          >
+            Add Leader
+          </Button>
+        </Box>
+        
         <TextField
           fullWidth
           variant="outlined"

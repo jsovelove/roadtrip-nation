@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, updateDoc, arrayUnion, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import axios from 'axios';
 
@@ -153,11 +153,112 @@ export async function setDefaultAnalysisVersion(id, versionIndex) {
   });
 }
 
+/**
+ * Creates a new leader document in Firestore
+ * @param {Object} leaderData - The leader data to save
+ * @returns {Promise<string>} - The created document ID
+ */
+export async function createLeader(leaderData) {
+  try {
+    // Generate a document ID based on the leader's name (cleaned up)
+    const cleanName = leaderData.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    
+    const leaderDoc = doc(db, 'leaders', cleanName);
+    
+    // Check if document already exists
+    const existingDoc = await getDoc(leaderDoc);
+    if (existingDoc.exists()) {
+      throw new Error('A leader with this name already exists');
+    }
+    
+    // Create the new leader document
+    const newLeaderData = {
+      id: cleanName,
+      title: leaderData.title || leaderData.name || '', // Use name as fallback for title
+      videoURL: leaderData.videoURL || '',
+      transcriptURL: leaderData.transcriptURL || '',
+      thumbnailURL: leaderData.thumbnailURL || '',
+      analysisVersions: [],
+      latestAnalysisVersion: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    await setDoc(leaderDoc, newLeaderData);
+    
+    return cleanName;
+  } catch (error) {
+    console.error('Error creating leader:', error);
+    throw error;
+  }
+}
+
+/**
+ * Updates an existing leader document
+ * @param {string} id - The leader document ID
+ * @param {Object} leaderData - The updated leader data
+ * @returns {Promise<void>}
+ */
+export async function updateLeader(id, leaderData) {
+  try {
+    const leaderDoc = doc(db, 'leaders', id);
+    const leaderSnapshot = await getDoc(leaderDoc);
+    
+    if (!leaderSnapshot.exists()) {
+      throw new Error('Leader not found');
+    }
+    
+    const updatedData = {
+      ...leaderData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Remove undefined fields
+    Object.keys(updatedData).forEach(key => {
+      if (updatedData[key] === undefined) {
+        delete updatedData[key];
+      }
+    });
+    
+    await updateDoc(leaderDoc, updatedData);
+  } catch (error) {
+    console.error('Error updating leader:', error);
+    throw error;
+  }
+}
+
+/**
+ * Validates if a URL is accessible
+ * @param {string} url - URL to validate
+ * @returns {Promise<boolean>} - Whether the URL is accessible
+ */
+export async function validateURL(url) {
+  try {
+    const response = await axios.head(url);
+    return response.status === 200;
+  } catch (error) {
+    // Try GET request if HEAD fails
+    try {
+      const response = await axios.get(url, { timeout: 5000 });
+      return response.status === 200;
+    } catch (getError) {
+      return false;
+    }
+  }
+}
+
 export default {
   getAllLeaders,
   getLeaderById,
   getTranscriptText,
   addAnalysisVersion,
   deleteAnalysisVersion,
-  setDefaultAnalysisVersion
+  setDefaultAnalysisVersion,
+  createLeader,
+  updateLeader,
+  validateURL
 }; 

@@ -67,7 +67,69 @@ export async function generateChapterMarkers(transcript, qaSegments = [], identi
   }
 }
 
+/**
+ * Analyzes transcript summaries to identify topic distribution
+ * @param {Array} transcriptSummaries - Array of transcript summary objects
+ * @returns {Promise<Object>} - Object containing topic distribution and key topics
+ */
+export async function analyzeTopicDistribution(transcriptSummaries) {
+  try {
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/analyzeTopicDistribution`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        transcriptSummaries: transcriptSummaries
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error calling analyzeTopicDistribution cloud function:", error);
+    throw new Error("Failed to analyze topic distribution. Please try again later.");
+  }
+}
+
+/**
+ * Categorizes chapters using AI
+ * @param {Array} chaptersData - Array of chapter data objects
+ * @param {Array} topicsData - Array of topic data objects
+ * @returns {Promise<Object>} - Object containing categorized chapters
+ */
+export async function categorizeChaptersWithAI(chaptersData, topicsData) {
+  try {
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/categorizeChaptersWithAI`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chaptersData: chaptersData,
+        topicsData: topicsData
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error calling categorizeChaptersWithAI cloud function:", error);
+    throw new Error("Failed to categorize chapters. Please try again later.");
+  }
+}
+
 export default {
   identifyQA,
-  generateChapterMarkers
+  generateChapterMarkers,
+  analyzeTopicDistribution,
+  categorizeChaptersWithAI
 }; 

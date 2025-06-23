@@ -249,4 +249,155 @@ exports.generateChapterMarkers = functions.https.onRequest((req, res) => {
       return res.status(500).json({ error: 'Failed to generate chapter markers' });
     }
   });
+});
+
+// Cloud function to analyze topic distribution
+exports.analyzeTopicDistribution = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    // Handle preflight OPTIONS request
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+    
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { transcriptSummaries } = req.body;
+      
+      if (!transcriptSummaries || !Array.isArray(transcriptSummaries)) {
+        return res.status(400).json({ error: 'Transcript summaries array is required' });
+      }
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert at analyzing interview transcripts and identifying key topics and themes across multiple interviews. Your response MUST be a valid JSON object containing topic distribution and key topics."
+          },
+          {
+            role: "user",
+            content: `Analyze these interview transcript summaries and identify the overall topic distribution and key topics across all interviews.
+
+            Return ONLY a valid JSON object with this structure:
+            {
+              "topicDistribution": [
+                {
+                  "topic": "Topic Name",
+                  "percentage": 25.5,
+                  "description": "Brief description of this topic category"
+                }
+              ],
+              "keyTopics": [
+                {
+                  "topic": "Topic Name",
+                  "description": "Detailed description of this topic and its significance",
+                  "relatedInterviews": ["interviewId1", "interviewId2"],
+                  "keyQuotes": [
+                    {
+                      "interviewId": "interviewId1",
+                      "quote": "Relevant quote from the interview"
+                    }
+                  ]
+                }
+              ]
+            }
+            
+            IMPORTANT GUIDELINES:
+            1. For topicDistribution:
+               - Identify 5-7 major topic categories that span across the interviews
+               - Ensure percentages sum to 100%
+               - Topics should be higher-level categories (e.g., "Personal Growth", "Leadership & Inspiration")
+            
+            2. For keyTopics:
+               - Identify 8-12 specific topics or themes that appear across multiple interviews
+               - Include the most relevant interviewId values in relatedInterviews
+               - Try to extract 1-2 representative quotes for each topic when possible
+               - Focus on topics that appear in multiple interviews
+            
+            Here are the transcript summaries:
+            ${JSON.stringify(transcriptSummaries, null, 2)}`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 4000,
+      });
+
+      const result = JSON.parse(response.choices[0].message.content);
+      return res.json(result);
+
+    } catch (error) {
+      console.error("Error in analyzeTopicDistribution:", error);
+      return res.status(500).json({ error: 'Failed to analyze topic distribution' });
+    }
+  });
+});
+
+// Cloud function to categorize chapters with AI
+exports.categorizeChaptersWithAI = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    // Handle preflight OPTIONS request
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+    
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { chaptersData, topicsData } = req.body;
+      
+      if (!chaptersData || !topicsData) {
+        return res.status(400).json({ error: 'Chapters data and topics data are required' });
+      }
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo-1106", // Using a faster model for categorization
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert at categorizing content. Your job is to assign topics to chapter markers from interview transcripts. You must respond with ONLY a valid JSON object."
+          },
+          {
+            role: "user",
+            content: `I need to categorize each chapter of an interview into one or more relevant topics.
+
+            Here are the key topics that have been identified across all interviews:
+            ${JSON.stringify(topicsData, null, 2)}
+            
+            Here are the chapters that need to be categorized:
+            ${JSON.stringify(chaptersData, null, 2)}
+            
+            For each chapter, assign it to one or more relevant topics from the list above. Every chapter should be assigned to at least one topic, and ideally most chapters should be assigned to 1-3 topics. IMPORTANT: EVERY key topic should have at least one chapter assigned to it. This is critical - if a topic was identified as key, it must have chapters that relate to it.
+            
+            Please return your response in this JSON format:
+            {
+              "categorizedChapters": [
+                {
+                  "id": "chapter-id",
+                  "matchedTopics": ["Topic A", "Topic B"]
+                }
+              ]
+            }
+            
+            The "matchedTopics" array should contain the exact topic names as they appear in the provided topics list.`
+          }
+        ],
+        temperature: 0.3, // Lower temperature for more consistent results
+        max_tokens: 2048,
+      });
+
+      const result = JSON.parse(response.choices[0].message.content);
+      return res.json(result);
+
+    } catch (error) {
+      console.error("Error in categorizeChaptersWithAI:", error);
+      return res.status(500).json({ error: 'Failed to categorize chapters' });
+    }
+  });
 }); 

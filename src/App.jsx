@@ -4,6 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Navigation from './components/Navigation';
 import LeadersList from './components/LeadersList';
 import LeaderDetail from './components/LeaderDetail';
+import AddLeader from './components/AddLeader';
 import ThemeAnalysisPage from './components/ThemeAnalysisPage';
 import TopicAnalysis from './components/TopicAnalysis';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
@@ -115,6 +116,7 @@ function App() {
             <Routes>
               <Route path="/" element={<LeadersList />} />
               <Route path="/leaders/:id" element={<LeaderDetail />} />
+              <Route path="/add-leader" element={<AddLeader />} />
               <Route path="/themes" element={<ThemeAnalysisPage />} />
               <Route path="/topic-analysis" element={<TopicAnalysis />} />
               <Route path="/analytics" element={<AnalyticsDashboard />} />

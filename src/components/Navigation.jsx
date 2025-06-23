@@ -1,89 +1,65 @@
-import { AppBar, Toolbar, Typography, Button, Box, Container, IconButton, useMediaQuery, useTheme } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
-import MenuIcon from '@mui/icons-material/Menu';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import PieChartIcon from '@mui/icons-material/PieChart';
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Button, 
+  Box,
+  Container 
+} from '@mui/material';
+import { 
+  Person as PersonIcon,
+  Analytics as AnalyticsIcon,
+  PersonAdd as PersonAddIcon
+} from '@mui/icons-material';
 
 const Navigation = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const location = useLocation();
+
+  const navItems = [
+    { path: '/', label: 'Leaders', icon: <PersonIcon /> },
+    { path: '/add-leader', label: 'Add Leader', icon: <PersonAddIcon /> },
+    { path: '/topic-analysis', label: 'Topic Analysis', icon: <AnalyticsIcon /> }
+  ];
 
   return (
-    <AppBar position="sticky" color="primary" elevation={0}>
+    <AppBar position="static" sx={{ mb: 4 }}>
       <Container maxWidth="lg">
-        <Toolbar disableGutters sx={{ py: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <Typography 
-              variant="h5" 
-              component={RouterLink} 
-              to="/" 
-              sx={{ 
-                fontWeight: 700, 
-                textDecoration: 'none', 
-                color: 'inherit',
-                letterSpacing: '-0.5px'
-              }}
-            >
-              Roadtrip Nation
-            </Typography>
-          </Box>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          <Typography 
+            variant="h6" 
+            component={RouterLink} 
+            to="/" 
+            sx={{ 
+              textDecoration: 'none', 
+              color: 'inherit', 
+              fontWeight: 700 
+            }}
+          >
+            Roadtrip Nation
+          </Typography>
           
-          {isMobile ? (
-            <IconButton color="inherit" edge="end">
-              <MenuIcon />
-            </IconButton>
-          ) : (
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button 
-                color="inherit" 
-                component={RouterLink} 
-                to="/"
-                sx={{ 
-                  fontWeight: 600,
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' }
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {navItems.map((item) => (
+              <Button
+                key={item.path}
+                component={RouterLink}
+                to={item.path}
+                color="inherit"
+                startIcon={item.icon}
+                variant={location.pathname === item.path ? 'outlined' : 'text'}
+                sx={{
+                  color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                  backgroundColor: location.pathname === item.path ? 'white' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: location.pathname === item.path ? 'grey.100' : 'rgba(255, 255, 255, 0.1)'
+                  }
                 }}
               >
-                Leaders
+                {item.label}
               </Button>
-              <Button 
-                color="inherit" 
-                component={RouterLink} 
-                to="/themes"
-                startIcon={<BarChartIcon />}
-                sx={{ 
-                  fontWeight: 600,
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' }
-                }}
-              >
-                Themes
-              </Button>
-              <Button 
-                color="inherit" 
-                component={RouterLink} 
-                to="/topic-analysis"
-                startIcon={<PieChartIcon />}
-                sx={{ 
-                  fontWeight: 600,
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' }
-                }}
-              >
-                Topic Analysis
-              </Button>
-              <Button 
-                color="inherit" 
-                component={RouterLink} 
-                to="/analytics"
-                startIcon={<AssessmentIcon />}
-                sx={{ 
-                  fontWeight: 600,
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' }
-                }}
-              >
-                Analytics
-              </Button>
-            </Box>
-          )}
+            ))}
+          </Box>
         </Toolbar>
       </Container>
     </AppBar>
