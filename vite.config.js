@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/', // Set base URL for GitHub Pages (root domain)
+  base: '/roadtrip-nation/', // Set base URL for GitHub Pages
   define: {
     global: 'globalThis',
   },
