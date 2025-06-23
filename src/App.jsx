@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -8,6 +9,7 @@ import AddLeader from './components/AddLeader';
 import ThemeAnalysisPage from './components/ThemeAnalysisPage';
 import TopicAnalysis from './components/TopicAnalysis';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
+import PasswordProtection from './components/PasswordProtection';
 import { Box } from '@mui/material';
 
 // Create a theme instance
@@ -106,6 +108,25 @@ const theme = createTheme({
 });
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is already authenticated (from sessionStorage)
+    const authStatus = sessionStorage.getItem('isAuthenticated');
+    if (authStatus === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  if (!isAuthenticated) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <PasswordProtection onAuthenticated={setIsAuthenticated} />
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

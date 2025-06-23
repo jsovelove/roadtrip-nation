@@ -10,7 +10,8 @@ import {
 import { 
   Person as PersonIcon,
   Analytics as AnalyticsIcon,
-  PersonAdd as PersonAddIcon
+  PersonAdd as PersonAddIcon,
+  Logout as LogoutIcon
 } from '@mui/icons-material';
 
 const Navigation = () => {
@@ -21,6 +22,11 @@ const Navigation = () => {
     { path: '/add-leader', label: 'Add Leader', icon: <PersonAddIcon /> },
     { path: '/topic-analysis', label: 'Topic Analysis', icon: <AnalyticsIcon /> }
   ];
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('isAuthenticated');
+    window.location.reload(); // Reload to show password screen
+  };
 
   return (
     <AppBar position="static" sx={{ mb: 4 }}>
@@ -59,6 +65,20 @@ const Navigation = () => {
                 {item.label}
               </Button>
             ))}
+            
+            <Button
+              color="inherit"
+              startIcon={<LogoutIcon />}
+              onClick={handleLogout}
+              sx={{
+                ml: 2,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
+            >
+              Logout
+            </Button>
           </Box>
         </Toolbar>
       </Container>
