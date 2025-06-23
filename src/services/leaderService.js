@@ -160,14 +160,10 @@ export async function setDefaultAnalysisVersion(id, versionIndex) {
  */
 export async function createLeader(leaderData) {
   try {
-    // Generate a document ID based on the leader's name (cleaned up)
-    const cleanName = leaderData.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+    // Use the leader's name directly as the document ID (Firestore supports spaces)
+    const documentId = leaderData.name;
     
-    const leaderDoc = doc(db, 'leaders', cleanName);
+    const leaderDoc = doc(db, 'leaders', documentId);
     
     // Check if document already exists
     const existingDoc = await getDoc(leaderDoc);
@@ -175,22 +171,18 @@ export async function createLeader(leaderData) {
       throw new Error('A leader with this name already exists');
     }
     
-    // Create the new leader document
+    // Create the new leader document (matching original structure)
     const newLeaderData = {
-      id: cleanName,
-      title: leaderData.title || leaderData.name || '', // Use name as fallback for title
       videoURL: leaderData.videoURL || '',
       transcriptURL: leaderData.transcriptURL || '',
       thumbnailURL: leaderData.thumbnailURL || '',
       analysisVersions: [],
-      latestAnalysisVersion: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      latestAnalysisVersion: null
     };
     
     await setDoc(leaderDoc, newLeaderData);
     
-    return cleanName;
+    return documentId;
   } catch (error) {
     console.error('Error creating leader:', error);
     throw error;
